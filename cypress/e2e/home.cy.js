@@ -5,7 +5,7 @@ beforeEach(() => {
 })
 
 describe("Home page test", ()=>{
-    it('form search cars', () => {
+    it('success search cars', () => {
         cy.get("#saisieRecherche").type("Peugeot")
         cy.wait(1000)
         cy.get(".rechercher").click()
@@ -15,19 +15,30 @@ describe("Home page test", ()=>{
             .find('td')
             .first()
             .should('have.text', 'Peugeot')
+        cy.wait(2000)
+    })
+
+    it('fail search cars', () => {
+        cy.visit('/esieaFront/')
+        cy.get('#saisieRecherche').should('be.visible').type("ddd{enter}");
+        cy.wait(2000)
+        cy.get("#listeVoitureTable tbody tr").should('not.exist');
     })
 
     it('add new car', () => {
-        cy.get('a:contains(Ajouter une voiture)').should('be.visible').click()
-        cy.get('#marque').type('Opel')
-        cy.get('#modele').type('Ford Mustang Mach-E')
-        cy.get('#finition').type('Essai')
-        cy.get('#carburant').select(3)
-        cy.get('#km').type('240')
-        cy.get('#annee').type('2020')
-        cy.get('#prix').type('48990')
-        cy.get('#nouvelleVoiture').click();
-        cy.get('#snackbar_ajout', {timeout: 1000}).should('be.visible');
+        cy.wait(2000)
+        cy.get('li a[onclick="afficherFormulaireCreation()"]').click()
+        cy.get('#marque', {timeout: 2000}).type('Opel')
+        cy.get('#modele', {timeout: 2000}).type('Ford Mustang Mach-E')
+        cy.get('#finition', {timeout: 2000}).type('Essai')
+        cy.get('#carburant', {timeout: 2000}).select(3)
+        cy.get('#km', {timeout: 2000}).type('240')
+        cy.get('#annee', {timeout: 2000}).type('2020')
+        cy.get('#prix', {timeout: 2000}).type('48990')
+        cy.wait(2000)
+        cy.get('#nouvelleVoiture[onclick="ajouterVoiture()"]').click();
+        cy.wait(500)
+        cy.get('#snackbar_ajout').should('be.visible');
     })
 
     it('delete car', () => {
@@ -36,9 +47,12 @@ describe("Home page test", ()=>{
         cy.get("#listeVoitureTable").within(()=> {
             cy.get('td').contains('Détails').click()
         });
+        cy.wait(2000)
         cy.get('#fiche').should('be.visible');
         cy.get(".infovoiture").should('not.be.empty')
+        cy.wait(2000)
         cy.get("#divSupprimer button").click()
-        cy.get("#snackbar_suppression", {timeout: 1000}).should("be.visible")
+        cy.wait(200)
+        cy.get("#snackbar_suppression").should("be.visible")
     })
 })

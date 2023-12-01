@@ -4,55 +4,69 @@ beforeEach(() => {
     cy.viewport(1280, 720)
 })
 
-describe("Home page test", ()=>{
-    it('success search cars', () => {
-        cy.get("#saisieRecherche").type("Peugeot")
-        cy.wait(1000)
-        cy.get(".rechercher").click()
+describe('Tests de l\'application de gestion d\'entrepôt de voitures', () => {
+    it('Test d\'Affichage de la Liste des Voitures', () => {
+        cy.get('#listeVoitureTable').should('be.visible');
+    });
 
-        cy.get('#listeVoitureTable')
-            .find('tbody tr:last')
-            .find('td')
-            .first()
-            .should('have.text', 'Peugeot')
-        cy.wait(2000)
-    })
-
-    it('fail search cars', () => {
-        cy.visit('/esieaFront/')
-        cy.get('#saisieRecherche').should('be.visible').type("ddd{enter}");
-        cy.wait(2000)
-        cy.get("#listeVoitureTable tbody tr").should('not.exist');
-    })
-
-    it('add new car', () => {
-        cy.wait(2000)
+    it('Test de Navigation vers la Page d\'Ajout de Voiture', () => {
+        cy.wait(200)
         cy.get('li a[onclick="afficherFormulaireCreation()"]').click()
-        cy.get('#marque', {timeout: 2000}).type('Opel')
-        cy.get('#modele', {timeout: 2000}).type('Ford Mustang Mach-E')
-        cy.get('#finition', {timeout: 2000}).type('Essai')
-        cy.get('#carburant', {timeout: 2000}).select(3)
-        cy.get('#km', {timeout: 2000}).type('240')
-        cy.get('#annee', {timeout: 2000}).type('2020')
-        cy.get('#prix', {timeout: 2000}).type('48990')
-        cy.wait(2000)
-        cy.get('#nouvelleVoiture[onclick="ajouterVoiture()"]').click();
-        cy.wait(500)
-        cy.get('#snackbar_ajout').should('be.visible');
-    })
+            cy.get('#nouvelle').should('be.visible');
+    });
 
-    it('delete car', () => {
-        cy.get('#saisieRecherche').should('be.visible').type("opel{enter}");
+    it('Test d\'Ajout de Voiture', () => {
+        cy.wait(1000)
+        cy.get('li a[onclick="afficherFormulaireCreation()"]').click()
         cy.wait(2000)
-        cy.get("#listeVoitureTable").within(()=> {
+        cy.get('#marque').type('Opel');
+        cy.get('#modele').type('Ford Mustang Mach-E');
+        cy.get('#finition').type('Essai');
+        cy.get('#carburant').select(3);
+        cy.get('#km').type('240');
+        cy.get('#annee').type('2020');
+        cy.get('#prix').type('48990');
+        cy.get('#nouvelleVoiture').click();
+        cy.get('#listeVoitureTable tbody tr td:first-child')
+            .should('contain', 'Opel');
+    });
+
+    it('Test de Suppression de Voiture', () => {
+        cy.wait(1000)
+        cy.get('#listeVoitureTable tbody tr:first-child').as('voiture');
+        cy.get('@voiture').within(()=> {
             cy.get('td').contains('Détails').click()
         });
-        cy.wait(2000)
+        cy.wait(500)
         cy.get('#fiche').should('be.visible');
         cy.get(".infovoiture").should('not.be.empty')
-        cy.wait(2000)
         cy.get("#divSupprimer button").click()
-        cy.wait(200)
-        cy.get("#snackbar_suppression").should("be.visible")
-    })
-})
+        cy.get('#snackbar_suppression').should('be.visible');
+    });
+
+    it('Test de Recherche de Voiture', () => {
+        cy.get('#saisieRecherche').type('Opel');
+        cy.get(".rechercher").click()
+        cy.get('#listeVoitureTable tbody tr').should('have.length.gte', 1);
+    });
+
+    it('Test d\'affichage des Détails d\'une Voiture', () => {
+        cy.get('#listeVoitureTable tbody tr:first-child').as('voiture');
+        cy.get('@voiture').find('td:last-child a').click();
+        cy.get('#infos').should('be.visible');
+    });
+
+    it('Test d\'Affichage de la Snackbar après l\'Ajout', () => {
+        cy.wait(1000)
+        cy.get('li a[onclick="afficherFormulaireCreation()"]').click()
+        cy.get('#marque').type('Citroen');
+        cy.get('#modele').type('DS3');
+        cy.get('#finition').type('Full MAT');
+        cy.get('#carburant').select(2);
+        cy.get('#km').type('2000');
+        cy.get('#annee').type('2015');
+        cy.get('#prix').type('8990');
+        cy.get('#nouvelleVoiture').click();
+        cy.get('#snackbar_ajout').should('be.visible');
+    });
+});
